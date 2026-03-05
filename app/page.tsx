@@ -1,105 +1,168 @@
 "use client";
 
 import Image from "next/image";
-import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import Link from "next/link";
+
+const services = [
+  {
+    title: "Webサイト・アプリ制作",
+    description: "LP、ホームページ、Webアプリなどを新規で制作します。",
+    alt: "Web制作",
+  },
+  {
+    title: "Webサイト・アプリ修正",
+    description: "既存サイトの修正、機能追加、改善などにも対応します。",
+    alt: "修正",
+  },
+];
+
+const achievements = [
+  {
+    number: "01",
+    title: "案件受注サイト",
+    description:
+      "Web制作の依頼を受け付けるためのWebサイトを制作。注文フォームから送信された内容をデータベースに保存し、注文が入るとLINEへ通知される仕組みを実装しています。",
+    features: ["注文フォーム", "reCAPTCHAによるスパム対策", "Firestoreへのデータ保存", "LINE通知"],
+    tech: "Next.js / Firebase / Firestore / reCAPTCHA",
+  },
+  {
+    number: "02",
+    title: "注文フォームシステム",
+    description:
+      "Web制作の注文を受け付けるフォームシステムを開発。不正送信対策としてreCAPTCHAを導入し、注文が送信されるとLINEに自動通知される仕組みを実装しています。",
+    features: ["フォーム入力", "スパム対策", "データ保存", "自動通知"],
+    tech: "Next.js / Firebase Functions / Firestore / reCAPTCHA",
+  },
+  {
+    number: "03",
+    title: "データ管理Webアプリ",
+    description:
+      "フォームから送信されたデータを管理できるシンプルな管理用Webアプリケーションを開発。",
+    features: ["データ登録", "データ一覧表示", "管理画面", "Googleログイン"],
+    tech: "Next.js / Firebase / Firestore / Firebase Auth",
+    span: "md:col-span-2",
+  },
+];
+
+const strengths = [
+  {
+    title: "WebサイトからWebアプリまで対応",
+    description: "管理機能付きWebアプリの開発にも対応しています。",
+  },
+  {
+    title: "幅広い機能追加が可能",
+    description: "お問い合わせフォームや注文システムなど様々な機能追加に対応。",
+  },
+  {
+    title: "モダン技術による開発",
+    description: "Next.jsやFirebaseなどの技術を使用した開発。",
+  },
+];
+
+const flowSteps = [
+  { title: "お問い合わせ", description: "フォームからご相談ください。" },
+  { title: "打ち合わせ", description: "制作内容や機能について確認します。" },
+  { title: "見積もり", description: "制作内容と費用をご案内します。" },
+  { title: "制作", description: "内容確定後、制作を開始します。" },
+  { title: "納品", description: "完成後に最終確認を行い納品します。" },
+];
+
+const faqs = [
+  {
+    question: "相談だけでも大丈夫ですか？",
+    answer:
+      "はい、相談だけでも大丈夫です。Webサイト制作やWebアプリ開発について、まだ具体的に決まっていなくてもお気軽にご相談ください。",
+  },
+  {
+    question: "見積もりは無料ですか？",
+    answer:
+      "はい、見積もりは無料です。ご希望の内容をお聞きした上で、制作内容と費用の目安をご案内します。",
+  },
+  {
+    question: "小さなサイトや簡単な機能でも依頼できますか？",
+    answer: "はい、可能です。小規模なWebサイトやフォーム設置などの案件にも対応しています。",
+  },
+  {
+    question: "制作期間はどれくらいかかりますか？",
+    answer: "内容によって異なります。一般的なWebサイトの場合は数日〜数週間程度が目安です。",
+  },
+  {
+    question: "修正は可能ですか？",
+    answer: "はい、制作中の修正には対応しています。納品後の追加修正についてもご相談いただけます。",
+  },
+];
+
+const containerClass = "mx-auto max-w-6xl px-6";
+const sectionLabelClass = "text-sm font-semibold uppercase tracking-[0.18em] text-sky-700";
+const sectionTitleClass = "mt-3 text-3xl font-bold text-slate-900 md:text-4xl";
+const sectionLeadClass = "mt-4 text-base leading-relaxed text-slate-600 md:text-lg";
+
+const primaryButtonClass =
+  "inline-flex items-center justify-center rounded-xl bg-sky-700 px-8 py-3 font-semibold text-white shadow-[0_12px_30px_-16px_rgba(2,132,199,0.85)] transition hover:-translate-y-0.5 hover:bg-sky-800";
+const secondaryButtonClass =
+  "inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700";
 
 export default function Home() {
-  // Google ログイン（管理者用）
-  const handleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      alert("ログインしました！");
-    } catch (error) {
-      console.error(error);
-      alert("ログインに失敗しました");
-    }
-  };
-
   return (
-    <main className="min-h-screen bg-white text-zinc-900">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
       {/* ===================== */}
-      {/*      ナビゲーション     */}
+      {/* HERO */}
       {/* ===================== */}
-      <header className="w-full border-b border-zinc-200 bg-white fixed top-0 left-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* サイト名 */}
-          <div className="text-xl font-bold text-blue-700">
-            EventWeb Works
-          </div>
+      <section className="relative overflow-hidden pb-20 pt-16 md:pb-24 md:pt-20">
+        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_right,_#dbeafe_0%,_#f8fafc_42%,_#f8fafc_100%)]" />
+        <div className="absolute -left-24 top-24 -z-10 h-64 w-64 rounded-full bg-sky-200/40 blur-3xl" />
+        <div className="absolute -right-24 -top-16 -z-10 h-72 w-72 rounded-full bg-indigo-200/35 blur-3xl" />
 
-          {/* 管理者ログイン */}
-          <button
-            onClick={handleLogin}
-            className="rounded-lg border-2 border-blue-700 text-blue-700 font-semibold px-4 py-2 bg-white hover:bg-blue-50 transition"
-          >
-            管理者ログイン
-          </button>
-        </div>
-      </header>
+        <div className={containerClass}>
+          <div className="rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.45)] backdrop-blur md:p-12">
+            <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+              <div className="text-center lg:text-left">
+                <p className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-4 py-1 text-xs font-semibold tracking-wide text-sky-700">
+                  Web制作サービス
+                </p>
 
-      {/* ナビ固定分の余白 */}
-      <div className="h-16" />
+                <h1 className="mt-5 text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
+                  Webサイト・Webアプリ制作
+                  <br className="hidden md:block" />
+                  修正・機能追加にも対応
+                </h1>
 
-      {/* ===================== */}
-      {/*        HERO           */}
-      {/* ===================== */}
-      <section className="px-6 pt-16 pb-20">
-        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 lg:items-center">
-          {/* 左：テキスト */}
-          <div className="text-center lg:text-left">
-            <p className="inline-flex items-center rounded-full bg-blue-50 px-4 py-1 text-xs font-semibold text-blue-700">
-              イベント企画 × Webサービス制作
-            </p>
+                <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
+                  新規制作から既存サイトの改善まで。
+                  必要な機能に絞った実用的なWeb制作を行います。
+                </p>
 
-            <h1 className="mt-4 text-4xl md:text-5xl font-bold text-blue-700 leading-tight">
-              オフ会・イベント運営と
-              <br className="hidden md:block" />
-              Web制作をまとめて相談
-            </h1>
+                <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
+                  <Link href="/order" className={`${primaryButtonClass} w-full sm:w-auto`}>
+                    制作・相談を申し込む
+                  </Link>
 
-            <p className="mt-4 text-lg md:text-xl text-zinc-600 leading-relaxed">
-              小規模イベントから、管理しやすいWebツールの制作まで。
-              <br className="hidden md:block" />
-              企画・設計・制作・運用をワンストップでサポートします。
-            </p>
+                  <Link href="/flow" className={`${secondaryButtonClass} w-full sm:w-auto`}>
+                    制作の流れを見る
+                  </Link>
+                </div>
 
-            {/* HERO ボタン */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a
-                href="/order"
-                className="w-full sm:w-auto text-center rounded-lg bg-blue-700 text-white font-semibold px-6 py-3 hover:bg-blue-800 transition"
-              >
-                制作・相談を申し込む
-              </a>
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500 lg:justify-start">
+                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1">初回相談無料</span>
+                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1">最短数日で着手</span>
+                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1">修正・運用も対応</span>
+                </div>
+              </div>
 
-            <a
-                href="/flow"
-                className="w-full sm:w-auto text-center rounded-lg border-2 border-blue-700 text-blue-700 font-semibold px-6 py-3 bg-white hover:bg-blue-50 transition"
-              >
-                制作の流れを見る
-              </a>
-            </div>
-
-            <p className="mt-3 text-xs text-zinc-500">
-              初回ヒアリング（30〜60分）と概算お見積りのご提示までは無料です。
-            </p>
-          </div>
-
-          {/* 右：ヒーロー画像 */}
-          <div className="relative flex justify-center">
-            <div className="relative w-full max-w-xl">
-              <div className="absolute inset-0 rounded-3xl bg-blue-50 blur-2xl opacity-70" />
-              <div className="relative rounded-3xl border border-zinc-200 bg-white shadow-lg overflow-hidden">
-                <Image
-                  src="/hero/hero.png"
-                  alt="イベント企画とWeb制作のイメージ"
-                  width={1200}
-                  height={800}
-                  className="w-full h-auto"
-                  priority
-                />
+              <div className="relative flex justify-center">
+                <div className="relative w-full max-w-xl">
+                  <div className="absolute inset-0 rounded-[2rem] bg-sky-100/70 blur-2xl" />
+                  <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_60px_-35px_rgba(15,23,42,0.6)]">
+                    <Image
+                      src="/hero/hero.png"
+                      alt="Web制作"
+                      width={1200}
+                      height={800}
+                      className="h-auto w-full"
+                      priority
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -107,301 +170,171 @@ export default function Home() {
       </section>
 
       {/* ===================== */}
-      {/*    サービス紹介       */}
+      {/* 提供サービス */}
       {/* ===================== */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <h2 className="text-3xl font-bold text-center text-blue-700">
-          提供サービス
-        </h2>
-
-        <p className="mt-4 text-center text-zinc-600">
-          イベント運営とWeb制作を組み合わせて、
-          「やりたいこと」を実現しやすい形に整えます。
-        </p>
-
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* イベント企画 */}
-          <div className="rounded-xl border border-zinc-200 p-8 shadow hover:shadow-lg transition bg-white">
-            <Image
-              src="/icons/event.png"
-              alt="イベントアイコン"
-              width={80}
-              height={80}
-              className="mb-4"
-            />
-            <h3 className="text-2xl font-semibold text-blue-700">
-              イベント企画・運営サポート
-            </h3>
-            <p className="mt-3 text-zinc-700 leading-relaxed">
-              オフ会・交流会・ファンイベントなどの企画立案から、
-              当日の運営マニュアル、受付フローの設計まで一貫して支援します。
-            </p>
-            <p className="mt-3 text-sm text-zinc-500">
-              ※会場手配や当日の現地スタッフ手配は別途ご相談となります。
-            </p>
-          </div>
-
-          {/* Web制作 */}
-          <div className="rounded-xl border border-zinc-200 p-8 shadow hover:shadow-lg transition bg-white">
-            <Image
-              src="/icons/web.png"
-              alt="Webサービスアイコン"
-              width={80}
-              height={80}
-              className="mb-4"
-            />
-            <h3 className="text-2xl font-semibold text-blue-700">
-              Webサイト／Webサービス制作
-            </h3>
-            <p className="mt-3 text-zinc-700 leading-relaxed">
-              予約サイト、イベント管理ツール、LP（ランディングページ）など、
-              必要な機能に絞った「ちょうどいい」Web制作を行います。
-            </p>
-            <p className="mt-3 text-sm text-zinc-500">
-              使用技術：Next.js／TypeScript／Firebase など
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== */}
-      {/*      初回特典        */}
-      {/* ===================== */}
-      <section className="bg-blue-50 py-16 px-6 text-center">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-blue-700">初回ご依頼特典</h2>
-          <p className="mt-4 text-lg text-zinc-700 leading-relaxed">
-            初回ご依頼のお客様は、
-            <span className="font-bold text-blue-700"> 制作費 50% OFF </span>
-            にて対応いたします。
-            <br />
-            「まずは小さく試したい」という方も歓迎です。
+      <section className="py-20">
+        <div className={containerClass}>
+          <p className={sectionLabelClass}>Service</p>
+          <h2 className={sectionTitleClass}>提供サービス</h2>
+          <p className={sectionLeadClass}>
+            企画段階から実装・公開後の改善まで、必要な範囲だけを無駄なくサポートします。
           </p>
-        </div>
-      </section>
 
-      {/* ===================== */}
-      {/*      返金保証         */}
-      {/* ===================== */}
-      <section className="mx-auto max-w-4xl px-6 py-20 text-center">
-        <h2 className="text-3xl font-bold text-blue-700">安心の保証</h2>
-        <div className="mt-10 rounded-xl border border-zinc-200 shadow-md p-8 bg-white">
-          <h3 className="text-2xl font-semibold text-blue-700">全額返金保証</h3>
-          <p className="mt-4 text-zinc-700 leading-relaxed">
-            初回制作にご満足いただけなかった場合、
-            制作費を全額返金いたします（※詳細はお見積り時にご案内します）。
-          </p>
-        </div>
-      </section>
-
-      {/* ===================== */}
-      {/*      料金プラン       */}
-      {/* ===================== */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <h2 className="text-3xl font-bold text-center text-blue-700">
-          料金の目安
-        </h2>
-
-        <p className="mt-4 text-center text-zinc-600">
-          内容やボリュームにより前後しますが、
-          おおよその目安としてご参考ください。
-        </p>
-
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* イベント企画 */}
-          <div className="rounded-xl border border-zinc-200 shadow-md p-8 bg-white hover:shadow-xl transition">
-            <h3 className="text-2xl font-semibold text-blue-700">
-              イベント企画プラン
-            </h3>
-            <p className="mt-4 text-4xl font-bold text-blue-700">
-              ¥8,000
-              <span className="text-lg font-normal text-zinc-500">〜</span>
-            </p>
-            <p className="mt-4 text-zinc-700 leading-relaxed">
-              小規模オフ会・交流会などの企画書作成、進行案、オンライン打ち合わせ
-              などを含むプランです。
-            </p>
-            <p className="mt-3 text-xs text-zinc-500">
-              ※会場費・飲食代などの実費は含まれません。
-            </p>
-
-            <a
-              href="/order"
-              className="mt-8 inline-block rounded-lg border-2 border-blue-700 text-blue-700 font-semibold px-6 py-3 bg-white hover:bg-blue-50 transition"
-            >
-              制作・相談を申し込む
-            </a>
-          </div>
-
-          {/* Web制作 */}
-          <div className="rounded-xl border border-zinc-200 shadow-md p-8 bg-white hover:shadow-xl transition">
-            <h3 className="text-2xl font-semibold text-blue-700">
-              Web制作プラン
-            </h3>
-            <p className="mt-4 text-4xl font-bold text-blue-700">
-              ¥15,000
-              <span className="text-lg font-normal text-zinc-500">〜</span>
-            </p>
-            <p className="mt-4 text-zinc-700 leading-relaxed">
-              予約サイト、簡易Webアプリ、LP制作など、
-              必要な機能に絞ったWebサイト／サービスを制作します。
-            </p>
-            <p className="mt-3 text-xs text-zinc-500">
-              ※複雑なシステムや大規模サービスの場合は、別途お見積りとなります。
-            </p>
-
-            <a
-              href="/order"
-              className="mt-8 inline-block rounded-lg border-2 border-blue-700 text-blue-700 font-semibold px-6 py-3 bg-white hover:bg-blue-50 transition"
-            >
-              制作・相談を申し込む
-            </a>
+          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
+            {services.map((service) => (
+              <article
+                key={service.title}
+                className="group rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="mb-4 inline-flex rounded-xl bg-sky-50 p-3 ring-1 ring-sky-100">
+                  <Image src="/icons/web.png" alt={service.alt} width={64} height={64} />
+                </div>
+                <h3 className="text-2xl font-semibold text-slate-900">{service.title}</h3>
+                <p className="mt-3 leading-relaxed text-slate-600">{service.description}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ===================== */}
-      {/*    運営者について      */}
+      {/* 実績 */}
       {/* ===================== */}
-      <section className="mx-auto max-w-6xl px-6 py-20 border-t border-zinc-100">
-        <h2 className="text-3xl font-bold text-center text-blue-700">
-          運営者について
-        </h2>
+      <section className="py-20">
+        <div className={containerClass}>
+          <p className={sectionLabelClass}>Works</p>
+          <h2 className={sectionTitleClass}>実績</h2>
+          <p className={sectionLeadClass}>これまでに対応したWeb制作・開発案件の一例です。</p>
 
-        <div className="mt-10 max-w-4xl mx-auto grid gap-8 md:grid-cols-[1.2fr,1fr] items-start">
-          {/* プロフィールテキスト */}
-          <div className="space-y-4 text-zinc-700 leading-relaxed">
-            <p>
-              EventWeb Works は、個人で運営している
-              <span className="font-semibold">
-                {" "}
-                Webエンジニア兼イベント企画者
-              </span>
-              による制作サービスです。
-            </p>
-            <p>
-              Next.js（React）＋TypeScript＋Firebase を中心とした
-              フロントエンド開発と、ファンイベントやコミュニティイベントの
-              企画・運営経験を活かして、
-              「オンラインとオフラインがつながる仕組みづくり」
-              をお手伝いしています。
-            </p>
-            <p>
-              特に、
-              <span className="font-semibold">
-                小〜中規模のイベントやコミュニティ運営
-              </span>
-              を想定した、
-              「ガチの企業システムほど重くないけれど、スプレッドシートだけではつらい」
-              という場面が得意分野です。
-            </p>
-            <p>
-              技術的・時間的に難しいご依頼の場合も、
-              できる範囲の代替案や、段階的な進め方をご提案します。
-              まずはお気軽にご相談ください。
-            </p>
-          </div>
+          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
+            {achievements.map((item) => (
+              <article
+                key={item.title}
+                className={`rounded-2xl border border-slate-200 bg-white p-8 shadow-sm ${item.span ?? ""}`}
+              >
+                <p className="mb-3 text-sm font-semibold tracking-wider text-sky-700">PROJECT {item.number}</p>
+                <h3 className="text-2xl font-semibold text-slate-900">{item.title}</h3>
+                <p className="mt-4 leading-relaxed text-slate-600">{item.description}</p>
 
-          {/* 簡易プロフィールカード */}
-          <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm p-6 text-sm text-zinc-700 space-y-3">
-            <p className="text-xs font-semibold text-blue-700 tracking-wide">
-              PROFILE
-            </p>
-            <p>
-              <span className="font-semibold">屋号：</span>
-              EventWeb Works（個人制作）
-            </p>
-            <p>
-              <span className="font-semibold">対応エリア：</span>
-              全国（オンライン打ち合わせ）
-            </p>
-            <p>
-              <span className="font-semibold">主な技術スタック：</span>
-              Next.js / React / TypeScript / Firebase / Vercel
-            </p>
-            <p>
-              <span className="font-semibold">得意なこと：</span>
-              小規模イベントの動線設計、Webツールでの運営効率化、ファンコミュニティ向け企画
-            </p>
-            <p className="text-xs text-zinc-500 pt-2">
-              ※学生として学びながら活動しているため、
-              スケジュールによっては納期のご相談をさせていただく場合があります。
-            </p>
+                <p className="mt-5 font-semibold text-sky-700">主な機能</p>
+                <ul className="mt-3 grid gap-2 text-slate-700 sm:grid-cols-2">
+                  {item.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-sky-600" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="mt-5 font-semibold text-sky-700">使用技術</p>
+                <p className="mt-2 text-slate-700">{item.tech}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ===================== */}
-      {/*    制作の流れ         */}
+      {/* 強み */}
       {/* ===================== */}
-      <section className="bg-zinc-50 py-20 px-6">
-        <h2 className="text-3xl font-bold text-blue-700 text-center">
-          制作の流れ（3ステップ）
-        </h2>
+      <section className="py-20">
+        <div className={containerClass}>
+          <div className="overflow-hidden rounded-3xl bg-slate-900 px-8 py-12 md:px-12 md:py-14">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">Strength</p>
+            <h2 className="mt-3 text-3xl font-bold text-white md:text-4xl">強み</h2>
 
-        <div className="mx-auto max-w-4xl mt-12 space-y-10">
-          {[
-            {
-              title: "1. フォームからご依頼 → 日程調整",
-              desc: "フォーム送信後、24時間以内にご連絡し、オンライン打ち合わせの日程を決めます。",
-            },
-            {
-              title: "2. ヒアリング → 企画・見積り",
-              desc: "ご要望をお伺いし、実現方法のご提案とお見積り、スケジュール案をご提示します。",
-            },
-            {
-              title: "3. 制作 → 納品・サポート",
-              desc: "内容確定後に制作を進め、納品後の簡単な修正や運用のご相談にも対応します。",
-            },
-          ].map((step, i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-zinc-200 bg-white p-6 shadow-md"
-            >
-              <h3 className="text-xl font-semibold text-blue-700">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-zinc-700">{step.desc}</p>
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              {strengths.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-3 leading-relaxed text-slate-300">{item.description}</p>
+                </article>
+              ))}
             </div>
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <a
-            href="/flow"
-            className="inline-block rounded-lg border-2 border-blue-700 text-blue-700 font-semibold px-8 py-3 bg-white hover:bg-blue-50 transition"
-          >
-            詳しい流れを見る
-          </a>
+          </div>
         </div>
       </section>
 
       {/* ===================== */}
-      {/*        最後のCTA       */}
+      {/* 制作の流れ */}
       {/* ===================== */}
-      <section className="py-20 px-6 bg-gradient-to-b from-blue-600 to-blue-500 text-white text-center">
-        <h2 className="text-3xl font-bold">まずはお気軽にご相談ください</h2>
-        <p className="mt-4 text-blue-100">
-          「こんなことお願いしても大丈夫かな？」という段階でも問題ありません。
-          <br />
-          一緒に、現実的な形へ落とし込んでいきましょう。
-        </p>
+      <section className="py-20">
+        <div className={containerClass}>
+          <p className={sectionLabelClass}>Flow</p>
+          <h2 className={sectionTitleClass}>制作の流れ</h2>
+          <p className={sectionLeadClass}>ご相談から納品まで、各ステップを明確に進行します。</p>
 
-        <a
-          href="/order"
-          className="mt-8 inline-block rounded-lg border-2 border-blue-700 text-blue-700 font-semibold px-8 py-3 bg-white hover:bg-blue-50 transition"
-        >
-          制作・相談を申し込む
-        </a>
+          <div className="mt-12 grid gap-4">
+            {flowSteps.map((step, index) => (
+              <article
+                key={step.title}
+                className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:grid-cols-[80px_1fr] md:items-center"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 font-bold text-sky-700 md:h-14 md:w-14">
+                  {String(index + 1).padStart(2, "0")}
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">{step.title}</h3>
+                  <p className="mt-2 text-slate-600">{step.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        {/* ▼ 管理者ページボタン ▼ */}
-        <div className="mt-6">
-          <a
-            href="/admin"
-            className="inline-block rounded-lg border-2 border-white text-white font-semibold px-8 py-3 bg-blue-700 hover:bg-blue-600 transition"
-          >
-            管理者ページへ
-          </a>
+      {/* ===================== */}
+      {/* よくある質問 */}
+      {/* ===================== */}
+      <section className="py-20">
+        <div className={containerClass}>
+          <p className={sectionLabelClass}>FAQ</p>
+          <h2 className={sectionTitleClass}>よくある質問</h2>
+
+          <div className="mx-auto mt-12 grid max-w-4xl gap-4">
+            {faqs.map((item) => (
+              <details
+                key={item.question}
+                className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm open:border-sky-200 open:bg-sky-50/30"
+              >
+                <summary className="cursor-pointer list-none pr-8 text-lg font-semibold text-slate-900 marker:content-none">
+                  {item.question}
+                </summary>
+                <p className="mt-3 leading-relaxed text-slate-600">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== */}
+      {/* 相談CTA */}
+      {/* ===================== */}
+      <section className="pb-24 pt-16">
+        <div className={containerClass}>
+          <div className="relative overflow-hidden rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-700 via-sky-800 to-slate-900 p-10 text-center text-white shadow-[0_30px_80px_-40px_rgba(2,6,23,0.9)] md:p-14">
+            <div className="absolute -left-16 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-sky-400/25 blur-3xl" />
+            <div className="absolute -right-16 top-0 h-44 w-44 rounded-full bg-indigo-300/20 blur-3xl" />
+
+            <h3 className="relative text-2xl font-bold md:text-3xl">
+              Web制作・Webアプリ開発のご相談を受け付けています
+            </h3>
+
+            <p className="relative mt-4 text-sky-100">
+              相談・見積もりは無料です。
+              <br />
+              まだ具体的に決まっていなくてもお気軽にご相談ください。
+            </p>
+
+            <div className="relative mt-8 flex justify-center">
+              <Link
+                href="/order"
+                className="inline-flex items-center justify-center rounded-xl bg-white px-8 py-3 font-semibold text-sky-800 shadow-lg transition hover:-translate-y-0.5 hover:bg-sky-50"
+              >
+                お問い合わせはこちら
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </main>
