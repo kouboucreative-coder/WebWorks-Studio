@@ -12,20 +12,15 @@ const LINE_TOKEN = defineSecret("LINE_TOKEN");
 const RECAPTCHA_SECRET = defineSecret("RECAPTCHA_SECRET");
 
 // ====== 設定 ======
-
-// フロントの execute と同じ action 名（ログ用）
 const RECAPTCHA_ACTION = "create_order";
 
-// hostname チェック用（ログ確認用）
 const ALLOWED_HOSTNAMES = [
   "localhost",
   "eventweb-works.vercel.app",
 ];
 
-// スコアしきい値
 const SCORE_THRESHOLD = 0.1;
 
-// CORS 許可ドメイン
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
   "https://eventweb-works.vercel.app",
@@ -78,6 +73,7 @@ const asCleanString = (v) => {
 async function verifyRecaptcha(token, remoteip) {
   const secret = RECAPTCHA_SECRET.value();
   const params = new URLSearchParams();
+
   params.set("secret", secret);
   params.set("response", token);
   if (remoteip) params.set("remoteip", remoteip);
@@ -88,16 +84,17 @@ async function verifyRecaptcha(token, remoteip) {
     body: params.toString(),
   });
 
-  const json = await res.json();
-  return json;
+  return await res.json();
 }
 
 // ====== CORS ヘルパー ======
 function applyCors(req, res) {
   const origin = req.headers.origin;
+
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     res.set("Access-Control-Allow-Origin", origin);
   }
+
   res.set("Vary", "Origin");
   res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type");
@@ -109,7 +106,14 @@ function applyCors(req, res) {
  * body: {
  *   recaptchaToken,
  *   order: {
- *     name,email,phone,type,budgetRange,deadline,meeting,details,meetingUnavailable
+ *     name,
+ *     email,
+ *     phone,
+ *     type,
+ *     budgetRange,
+ *     deadline,
+ *     details,
+ *     meetingUnavailable
  *   }
  * }
  */
@@ -142,6 +146,7 @@ exports.createOrder = onRequest(
 
       const remoteip =
         req.headers["x-forwarded-for"]?.toString()?.split(",")[0]?.trim() || "";
+
       const verify = await verifyRecaptcha(recaptchaToken, remoteip);
 
       const success = !!verify.success;
@@ -163,7 +168,6 @@ exports.createOrder = onRequest(
           .json({ ok: false, blocked: true, reason: "recaptcha_failed" });
       }
 
-      // hostname / action はログ確認用。ブロックには使わない
       if (hostname && !ALLOWED_HOSTNAMES.includes(hostname)) {
         console.warn("createOrder: unexpected hostname", hostname);
       }
@@ -189,7 +193,6 @@ exports.createOrder = onRequest(
         type: asCleanString(order.type),
         budgetRange: asCleanString(order.budgetRange),
         deadline: asCleanString(order.deadline),
-        meeting: asCleanString(order.meeting),
         details: asCleanString(order.details),
         meetingUnavailable: asCleanString(order.meetingUnavailable),
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -204,14 +207,13 @@ exports.createOrder = onRequest(
         "type",
         "budgetRange",
         "deadline",
-        "meeting",
         "details",
       ];
 
-      for (const k of requiredKeys) {
-        if (!data[k]) {
-          console.warn("createOrder: missing field", k);
-          return res.status(400).json({ ok: false, error: `Missing ${k}` });
+      for (const key of requiredKeys) {
+        if (!data[key]) {
+          console.warn("createOrder: missing field", key);
+          return res.status(400).json({ ok: false, error: `Missing ${key}` });
         }
       }
 
@@ -242,10 +244,9 @@ exports.notifyNewOrder = onDocumentCreated(
 名前：${data.name ?? "-"}
 メール：${data.email ?? "-"}
 電話番号：${data.phone ?? "-"}
-種別：${data.type ?? "-"}
+依頼の種類：${data.type ?? "-"}
 予算：${formatBudget(data.budgetRange)}
 納期：${formatDeadline(data.deadline)}
-打ち合わせ方法：${data.meeting ?? "-"}
 打ち合わせが難しい日時：${data.meetingUnavailable ?? "-"}
 
 詳細内容：
