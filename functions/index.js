@@ -13,16 +13,16 @@ const RECAPTCHA_SECRET = defineSecret("RECAPTCHA_SECRET");
 
 // ====== 設定 ======
 
-// フロントの execute と同じ action 名（ログ用に残しておく）
-const RECAPTCHA_ACTION = "order_submit";
+// フロントの execute と同じ action 名（ログ用）
+const RECAPTCHA_ACTION = "create_order";
 
-// hostname チェック用（今回は「ブロックには使わない」）
+// hostname チェック用（ログ確認用）
 const ALLOWED_HOSTNAMES = [
   "localhost",
   "eventweb-works.vercel.app",
 ];
 
-// スコアしきい値（かなりゆるめ）
+// スコアしきい値
 const SCORE_THRESHOLD = 0.1;
 
 // CORS 許可ドメイン
@@ -34,14 +34,18 @@ const ALLOWED_ORIGINS = [
 // ====== 表示用変換 ======
 const formatBudget = (value) => {
   switch (value) {
-    case "5000-10000":
-      return "¥5,000〜¥10,000";
-    case "10000-20000":
-      return "¥10,000〜¥20,000";
-    case "20000-30000":
-      return "¥20,000〜¥30,000";
-    case "30000over":
-      return "¥30,000以上";
+    case "under10000":
+      return "〜10,000円";
+    case "10000-30000":
+      return "10,000円〜30,000円";
+    case "30000-50000":
+      return "30,000円〜50,000円";
+    case "50000-100000":
+      return "50,000円〜100,000円";
+    case "100000over":
+      return "100,000円以上";
+    case "undecided":
+      return "未定・相談したい";
     default:
       return value || "-";
   }
@@ -64,7 +68,7 @@ const formatDeadline = (value) => {
   }
 };
 
-// 文字列を安全に整形（undefined/null対策 + trim）
+// 文字列を安全に整形
 const asCleanString = (v) => {
   if (v === null || v === undefined) return "";
   return String(v).trim();
@@ -85,7 +89,7 @@ async function verifyRecaptcha(token, remoteip) {
   });
 
   const json = await res.json();
-  return json; // { success, score, action, hostname, ... }
+  return json;
 }
 
 // ====== CORS ヘルパー ======
@@ -105,15 +109,7 @@ function applyCors(req, res) {
  * body: {
  *   recaptchaToken,
  *   order: {
- *     name,
- *     email,
- *     phone,
- *     type,
- *     budgetRange,
- *     deadline,
- *     meeting,
- *     details,
- *     meetingUnavailable   // 🆕 追加
+ *     name,email,phone,type,budgetRange,deadline,meeting,details,meetingUnavailable
  *   }
  * }
  */
@@ -125,7 +121,6 @@ exports.createOrder = onRequest(
   async (req, res) => {
     applyCors(req, res);
 
-    // preflight
     if (req.method === "OPTIONS") {
       return res.status(204).send("");
     }
@@ -145,7 +140,6 @@ exports.createOrder = onRequest(
           .json({ ok: false, error: "Missing recaptchaToken" });
       }
 
-      // reCAPTCHA 検証
       const remoteip =
         req.headers["x-forwarded-for"]?.toString()?.split(",")[0]?.trim() || "";
       const verify = await verifyRecaptcha(recaptchaToken, remoteip);
@@ -162,7 +156,6 @@ exports.createOrder = onRequest(
         action,
       });
 
-      // ---- 判定（ゆるめ）----
       if (!success) {
         console.warn("createOrder: recaptcha_failed");
         return res
@@ -170,9 +163,14 @@ exports.createOrder = onRequest(
           .json({ ok: false, blocked: true, reason: "recaptcha_failed" });
       }
 
-      // hostname / action はログだけ取ってブロックには使わない
-      // if (hostname && !ALLOWED_HOSTNAMES.includes(hostname)) { ... }
-      // if (action && action !== RECAPTCHA_ACTION) { ... }
+      // hostname / action はログ確認用。ブロックには使わない
+      if (hostname && !ALLOWED_HOSTNAMES.includes(hostname)) {
+        console.warn("createOrder: unexpected hostname", hostname);
+      }
+
+      if (action && action !== RECAPTCHA_ACTION) {
+        console.warn("createOrder: unexpected action", action);
+      }
 
       if (score < SCORE_THRESHOLD) {
         console.warn("createOrder: low_score", score);
@@ -184,7 +182,6 @@ exports.createOrder = onRequest(
         });
       }
 
-      // 入力値を整形
       const data = {
         name: asCleanString(order.name),
         email: asCleanString(order.email),
@@ -194,7 +191,6 @@ exports.createOrder = onRequest(
         deadline: asCleanString(order.deadline),
         meeting: asCleanString(order.meeting),
         details: asCleanString(order.details),
-        // 🆕 会議が難しい日時（任意項目）
         meetingUnavailable: asCleanString(order.meetingUnavailable),
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         recaptchaScore: score,
@@ -202,17 +198,16 @@ exports.createOrder = onRequest(
         recaptchaAction: action,
       };
 
-      // 必須チェック
       const requiredKeys = [
         "name",
         "email",
-        "phone",
         "type",
         "budgetRange",
         "deadline",
         "meeting",
         "details",
       ];
+
       for (const k of requiredKeys) {
         if (!data[k]) {
           console.warn("createOrder: missing field", k);
@@ -220,7 +215,6 @@ exports.createOrder = onRequest(
         }
       }
 
-      // Firestore 保存（orders が作成される → LINE通知が動く）
       const ref = await admin.firestore().collection("orders").add(data);
 
       console.log("createOrder: stored order", ref.id);
@@ -246,9 +240,16 @@ exports.notifyNewOrder = onDocumentCreated(
     const message = `📩 新しい注文が入りました
 
 名前：${data.name ?? "-"}
+メール：${data.email ?? "-"}
+電話番号：${data.phone ?? "-"}
 種別：${data.type ?? "-"}
 予算：${formatBudget(data.budgetRange)}
 納期：${formatDeadline(data.deadline)}
+打ち合わせ方法：${data.meeting ?? "-"}
+打ち合わせが難しい日時：${data.meetingUnavailable ?? "-"}
+
+詳細内容：
+${data.details ?? "-"}
 `;
 
     const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
