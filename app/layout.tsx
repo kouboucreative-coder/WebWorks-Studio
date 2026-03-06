@@ -23,6 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/flow" className="transition hover:text-[#2458d7]">
                 制作の流れ
               </Link>
+              <Link href="/price" className="transition hover:text-[#2458d7]">
+                料金
+              </Link>
               <Link
                 href="/order"
                 className="rounded-lg bg-[#2458d7] px-4 py-2 text-white transition hover:bg-[#1f4cc0]"
@@ -71,12 +74,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="mt-3 text-sm leading-relaxed text-zinc-700">
                 初回ヒアリング（30〜60分）と概算見積りは無料です。まずはお気軽にご相談ください。
               </p>
-              <Link
-                href="/order"
-                className="mt-4 inline-block rounded-lg border border-[#2458d7] px-4 py-2 text-sm font-bold text-[#2458d7] transition hover:bg-[#eef4ff]"
-              >
-                相談フォームへ
-              </Link>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href="/order"
+                  className="inline-block rounded-lg border border-[#2458d7] px-4 py-2 text-sm font-bold text-[#2458d7] transition hover:bg-[#eef4ff]"
+                >
+                  相談フォームへ
+                </Link>
+                <Link
+                  href="/privacy"
+                  className="inline-block rounded-lg border border-[#2458d7] px-4 py-2 text-sm font-bold text-[#2458d7] transition hover:bg-[#eef4ff]"
+                >
+                  プライバシーポリシー
+                </Link>
+              </div>
             </div>
           </div>
 
