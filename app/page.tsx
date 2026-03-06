@@ -133,6 +133,12 @@ export default function Home() {
               >
                 制作の流れを見る
               </Link>
+              <Link
+                href="/price"
+                className="rounded-xl border border-[#c0d6ff] bg-[#f4f8ff] px-8 py-3 text-center text-sm font-bold text-[#1d42a5] transition hover:-translate-y-0.5 hover:border-[#2458d7] hover:bg-[#eef4ff]"
+              >
+                料金を見る
+              </Link>
             </div>
 
             <div className="mt-8 grid grid-cols-1 gap-3 text-left text-sm text-zinc-700 sm:grid-cols-3">
