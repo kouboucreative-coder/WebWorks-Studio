@@ -16,14 +16,14 @@ const RECAPTCHA_ACTION = "create_order";
 
 const ALLOWED_HOSTNAMES = [
   "localhost",
-  "eventweb-works.vercel.app",
+  "webworksstudio.vercel.app",
 ];
 
 const SCORE_THRESHOLD = 0.1;
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
-  "https://eventweb-works.vercel.app",
+  "https://webworksstudio.vercel.app",
 ];
 
 // ====== 表示用変換 ======
